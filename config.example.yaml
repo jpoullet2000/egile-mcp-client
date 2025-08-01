@@ -1,0 +1,55 @@
+# AI Providers (for agent mode)
+ai_providers:
+  openai:
+    api_key: "your-openai-api-key-here"
+    model: "gpt-4"
+    temperature: 0.7
+    max_tokens: 2000
+  anthropic:
+    api_key: "your-anthropic-api-key-here"
+    model: "claude-3-sonnet-20240229"
+    temperature: 0.7
+    max_tokens: 2000
+  xai:
+    api_key: "your-xai-api-key-here"
+    model: "grok-beta"
+    temperature: 0.7
+    max_tokens: 2000
+
+# MCP Servers configuration
+mcp_servers:
+  - name: "example_server"
+    url: "http://localhost:8000"
+    type: "http"
+    description: "Example HTTP MCP server"
+  - name: "local_rag_server"
+    command: ["python", "/path/to/rag_server/main.py"]
+    type: "stdio"
+    description: "Local RAG-enabled MCP server"
+  - name: "tools_server"
+    url: "ws://localhost:8001"
+    type: "websocket"
+    description: "WebSocket MCP tools server"
+
+# Default settings
+default_ai_provider: "openai"
+default_mcp_server: "example_server"
+
+# Web interface configuration
+web_interface:
+  host: "localhost"
+  port: 8080
+  title: "Egile MCP Client"
+  max_history_messages: 1000
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/egile_mcp_client.log"
+
+# History storage
+history:
+  storage_type: "file"  # file, memory, database
+  file_path: "data/conversation_history.json"
+  max_conversations: 100

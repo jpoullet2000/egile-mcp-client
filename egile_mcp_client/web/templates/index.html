@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chat-interface {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chat-main {
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .controls {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .control-group select,
+        .control-group button {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .control-group button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .control-group button:hover {
+            background: #0056b3;
+        }
+        
+        .control-group button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 400px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .message.user {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            margin-right: 0;
+        }
+        
+        .message.assistant {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+        }
+        
+        .message.system {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            text-align: center;
+            margin: 0 auto;
+        }
+        
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .input-group button {
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .input-group button:hover {
+            background: #218838;
+        }
+        
+        .input-group button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.connecting {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-interface {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .sidebar {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ title }}</h1>
+            <p>Connect to MCP servers directly or through AI agents</p>
+        </div>
+        
+        <div class="chat-interface">
+            <div class="sidebar">
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="mode">Mode:</label>
+                        <select id="mode">
+                            <option value="agent">Agent Mode</option>
+                            <option value="direct">Direct Mode</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="provider">AI Provider:</label>
+                        <select id="provider">
+                            {% for provider in ai_providers %}
+                            <option value="{{ provider }}">{{ provider.title() }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="server">MCP Server:</label>
+                        <select id="server">
+                            <option value="">None</option>
+                            {% for server in servers %}
+                            <option value="{{ server }}">{{ server }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button id="connect-btn" onclick="startSession()">Start Session</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button onclick="clearChat()">Clear Chat</button>
+                    </div>
+                </div>
+                
+                <div id="status" class="status disconnected">
+                    Disconnected
+                </div>
+            </div>
+            
+            <div class="chat-main">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="message system">
+                        Welcome to {{ title }}! Configure your settings and start a session to begin chatting.
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="message-input" 
+                            placeholder="Type your message..." 
+                            onkeypress="handleKeyPress(event)"
+                            disabled
+                        >
+                        <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let sessionId = null;
+        let isConnecting = false;
+        
+        async function startSession() {
+            if (isConnecting) return;
+            
+            const mode = document.getElementById('mode').value;
+            const provider = document.getElementById('provider').value;
+            const server = document.getElementById('server').value;
+            const connectBtn = document.getElementById('connect-btn');
+            const status = document.getElementById('status');
+            
+            isConnecting = true;
+            connectBtn.disabled = true;
+            connectBtn.textContent = 'Connecting...';
+            status.className = 'status connecting';
+            status.textContent = 'Connecting...';
+            
+            try {
+                const response = await fetch('/api/sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode, provider, server })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    sessionId = data.session_id;
+                    
+                    status.className = 'status connected';
+                    status.textContent = `Connected (${mode} mode)`;
+                    
+                    document.getElementById('message-input').disabled = false;
+                    document.getElementById('send-btn').disabled = false;
+                    
+                    connectBtn.textContent = 'Disconnect';
+                    connectBtn.onclick = disconnectSession;
+                    
+                    addMessage('system', `Session started in ${mode} mode${server ? ` with server: ${server}` : ''}${provider ? ` using ${provider}` : ''}`);
+                } else {
+                    throw new Error('Failed to start session');
+                }
+            } catch (error) {
+                status.className = 'status disconnected';
+                status.textContent = 'Connection failed';
+                addMessage('system', 'Error starting session: ' + error.message);
+            } finally {
+                isConnecting = false;
+                connectBtn.disabled = false;
+                if (!sessionId) {
+                    connectBtn.textContent = 'Start Session';
+                }
+            }
+        }
+        
+        async function disconnectSession() {
+            if (sessionId) {
+                try {
+                    await fetch(`/api/sessions/${sessionId}`, { method: 'DELETE' });
+                } catch (error) {
+                    console.error('Error disconnecting:', error);
+                }
+                sessionId = null;
+            }
+            
+            const status = document.getElementById('status');
+            const connectBtn = document.getElementById('connect-btn');
+            
+            status.className = 'status disconnected';
+            status.textContent = 'Disconnected';
+            
+            document.getElementById('message-input').disabled = true;
+            document.getElementById('send-btn').disabled = true;
+            
+            connectBtn.textContent = 'Start Session';
+            connectBtn.onclick = startSession;
+            
+            addMessage('system', 'Session disconnected');
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            const message = input.value.trim();
+            
+            if (!message || !sessionId) return;
+            
+            addMessage('user', message);
+            input.value = '';
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: sessionId, message })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage('assistant', data.response);
+                } else {
+                    addMessage('system', 'Error processing message');
+                }
+            } catch (error) {
+                addMessage('system', 'Error: ' + error.message);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send';
+            }
+        }
+        
+        function addMessage(role, content) {
+            const container = document.getElementById('chat-messages');
+            const message = document.createElement('div');
+            message.className = `message ${role}`;
+            message.textContent = content;
+            container.appendChild(message);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function clearChat() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '<div class="message system">Chat cleared. Start a new session when ready.</div>';
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on input when ready
+            document.getElementById('message-input').addEventListener('keypress', handleKeyPress);
+        });
+    </script>
+</body>
+</html>
