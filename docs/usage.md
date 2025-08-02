@@ -12,20 +12,39 @@ Egile MCP Client provides three main interfaces:
 
 ## Command Line Interface
 
+### Quick Reference
+
+```bash
+# Main commands
+egile-mcp-client direct --server SERVER_NAME     # Direct MCP server interaction
+egile-mcp-client agent --provider PROVIDER       # AI agent mode
+egile-mcp-client tools [--server SERVER_NAME]    # List available tools
+egile-mcp-client web                              # Start web interface
+
+# Configuration management
+egile-mcp-client config validate                  # Validate configuration
+egile-mcp-client config show                      # Show current configuration
+egile-mcp-client config test-servers              # Test server connections
+
+# Options
+egile-mcp-client --config PATH                    # Use custom config file
+egile-mcp-client --verbose                        # Enable verbose logging
+egile-mcp-client --help                           # Show help
+```
+
 ### Basic Commands
 
 ```bash
 # Show help
 egile-mcp-client --help
 
-# Show version
-egile-mcp-client --version
+# Show help
+egile-mcp-client --help
 
-# List configured servers
-egile-mcp-client servers
-
-# Validate configuration
+# List configured servers and validate configuration
+egile-mcp-client config show
 egile-mcp-client config validate
+egile-mcp-client config test-servers
 ```
 
 ### Direct Mode
@@ -33,21 +52,21 @@ egile-mcp-client config validate
 Connect directly to MCP servers without AI assistance:
 
 ```bash
-# List available tools from a server
+# List available tools from all servers
+egile-mcp-client tools
+
+# List tools from a specific server
 egile-mcp-client tools --server server_name
 
 # Interactive direct mode
 egile-mcp-client direct --server server_name
-
-# Execute a specific tool
-egile-mcp-client call --server server_name --tool tool_name --args '{"param": "value"}'
 ```
 
 #### Direct Mode Examples
 
 ```bash
-# List tools from web search server
-$ egile-mcp-client tools --server web_search
+# List tools from all configured servers
+$ egile-mcp-client tools
 Available tools from web_search:
 - search: Search the web for information
 - summarize: Summarize web content

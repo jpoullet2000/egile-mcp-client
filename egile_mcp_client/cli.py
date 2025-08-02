@@ -563,6 +563,165 @@ def web(ctx):
         console.print(f"[red]Error starting web interface: {e}[/red]")
 
 
+@cli.group()
+def config():
+    """Configuration management commands."""
+    pass
+
+
+@config.command("show")
+@click.pass_context
+def config_show(ctx):
+    """Show current configuration."""
+    try:
+        config_data = ctx.parent.parent.obj.get("config")
+        if not config_data:
+            console.print("[yellow]No configuration loaded[/yellow]")
+            return
+
+        # Convert config to JSON for pretty printing
+        config_dict = {
+            "ai_providers": config_data.ai_providers,
+            "mcp_servers": [
+                {
+                    "name": server.name,
+                    "type": server.type,
+                    "url": server.url,
+                    "command": server.command,
+                    "description": server.description,
+                }
+                for server in config_data.mcp_servers
+            ],
+            "default_ai_provider": config_data.default_ai_provider,
+            "default_mcp_server": config_data.default_mcp_server,
+            "web_interface": config_data.web_interface,
+            "logging": config_data.logging,
+            "history": config_data.history,
+        }
+
+        console.print(
+            Panel(
+                json.dumps(config_dict, indent=2, default=str),
+                title="Current Configuration",
+                border_style="blue",
+            )
+        )
+    except Exception as e:
+        console.print(f"[red]Error showing configuration: {e}[/red]")
+
+
+@config.command("validate")
+@click.pass_context
+def config_validate(ctx):
+    """Validate configuration syntax and settings."""
+    try:
+        config_data = ctx.parent.parent.obj.get("config")
+        if not config_data:
+            console.print("[red]No configuration loaded[/red]")
+            return
+
+        console.print("[green]✓[/green] Configuration syntax is valid")
+
+        # Validate AI providers
+        if config_data.ai_providers:
+            console.print("[green]✓[/green] AI providers configuration found")
+            for provider_name in config_data.ai_providers.keys():
+                console.print(f"  - {provider_name}")
+        else:
+            console.print("[yellow]⚠[/yellow] No AI providers configured")
+
+        # Validate MCP servers
+        if config_data.mcp_servers:
+            console.print(
+                f"[green]✓[/green] {len(config_data.mcp_servers)} MCP server(s) configured"
+            )
+            for server in config_data.mcp_servers:
+                console.print(f"  - {server.name} ({server.type})")
+        else:
+            console.print("[yellow]⚠[/yellow] No MCP servers configured")
+
+        # Check defaults
+        if config_data.default_ai_provider:
+            if config_data.default_ai_provider in config_data.ai_providers:
+                console.print(
+                    f"[green]✓[/green] Default AI provider: {config_data.default_ai_provider}"
+                )
+            else:
+                console.print(
+                    f"[red]✗[/red] Default AI provider '{config_data.default_ai_provider}' not found in configuration"
+                )
+
+        if config_data.default_mcp_server:
+            server_names = [s.name for s in config_data.mcp_servers]
+            if config_data.default_mcp_server in server_names:
+                console.print(
+                    f"[green]✓[/green] Default MCP server: {config_data.default_mcp_server}"
+                )
+            else:
+                console.print(
+                    f"[red]✗[/red] Default MCP server '{config_data.default_mcp_server}' not found in configuration"
+                )
+
+        console.print("\n[green]Configuration validation complete![/green]")
+
+    except Exception as e:
+        console.print(f"[red]Configuration validation failed: {e}[/red]")
+
+
+@config.command("test-servers")
+@click.pass_context
+def config_test_servers(ctx):
+    """Test connections to configured MCP servers."""
+
+    async def _test_servers():
+        try:
+            config_data = ctx.parent.parent.obj.get("config")
+            if not config_data:
+                console.print("[red]No configuration loaded[/red]")
+                return
+
+            if not config_data.mcp_servers:
+                console.print("[yellow]No MCP servers configured to test[/yellow]")
+                return
+
+            console.print("Testing MCP server connections...\n")
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=console,
+            ) as progress:
+                for server_config in config_data.mcp_servers:
+                    task = progress.add_task(
+                        f"Testing {server_config.name}...", total=None
+                    )
+
+                    try:
+                        client = MCPClient()
+                        await client.connect(server_config)
+                        await client.disconnect()
+
+                        progress.update(
+                            task,
+                            description=f"[green]✓[/green] {server_config.name} - Connection successful",
+                        )
+                        progress.stop_task(task)
+
+                    except Exception as e:
+                        progress.update(
+                            task,
+                            description=f"[red]✗[/red] {server_config.name} - Connection failed: {e}",
+                        )
+                        progress.stop_task(task)
+
+            console.print("\n[green]Server connection tests complete![/green]")
+
+        except Exception as e:
+            console.print(f"[red]Error testing servers: {e}[/red]")
+
+    asyncio.run(_test_servers())
+
+
 def main():
     """Entry point for the CLI."""
     cli()
