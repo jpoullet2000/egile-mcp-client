@@ -49,7 +49,8 @@ jobs:
 
     - name: Run integration tests
       run: |
-        poetry run pytest tests/ -v -m integration --cov=egile_mcp_client
+        # Run all tests in integration environment
+        poetry run pytest tests/ -v --cov=egile_mcp_client --cov-report=xml
       env:
         # Add any environment variables needed for integration tests
         MCP_SERVER_URL: "http://localhost:8000"

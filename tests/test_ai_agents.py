@@ -239,6 +239,7 @@ class TestModelValidation:
         assert config.max_tokens > 0
 
     @pytest.mark.asyncio
+    @pytest.mark.integration
     @pytest.mark.skipif(not os.getenv("XAI_API_KEY"), reason="XAI_API_KEY not set")
     async def test_xai_api_connection(self):
         """Test actual xAI API connection (integration test)."""
@@ -261,6 +262,7 @@ class TestModelValidation:
             pytest.skip(f"xAI API test failed: {e}")
 
     @pytest.mark.asyncio
+    @pytest.mark.integration
     @pytest.mark.skipif(
         not os.getenv("OPENAI_API_KEY"), reason="OPENAI_API_KEY not set"
     )
@@ -285,6 +287,7 @@ class TestModelValidation:
             pytest.skip(f"OpenAI API test failed: {e}")
 
     @pytest.mark.asyncio
+    @pytest.mark.integration
     @pytest.mark.skipif(
         not os.getenv("ANTHROPIC_API_KEY"), reason="ANTHROPIC_API_KEY not set"
     )
