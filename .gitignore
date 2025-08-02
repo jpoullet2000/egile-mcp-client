@@ -163,3 +163,9 @@ config.yaml
 config.yml
 data/conversation_history.json
 logs/*.log
+
+# Development artifacts (content should be integrated into docs/)
+DEVELOPMENT_SUMMARY.md
+FINAL_IMPLEMENTATION_SUMMARY.md
+BUILD_SUMMARY.md
+*_SUMMARY.md
