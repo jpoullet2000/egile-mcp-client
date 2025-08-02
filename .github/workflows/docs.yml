@@ -32,7 +32,7 @@ jobs:
 
     - name: Load cached venv
       id: cached-poetry-dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: .venv
         key: venv-docs-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
@@ -65,11 +65,11 @@ jobs:
           exit 1
         fi
 
-    - name: Upload documentation artifacts
-      uses: actions/upload-artifact@v3
+    - name: Upload documentation
+      uses: actions/upload-artifact@v4
       with:
         name: documentation
-        path: docs/_build/html/
+        path: docs/_build/html
 
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
