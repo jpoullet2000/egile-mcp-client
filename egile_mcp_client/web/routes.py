@@ -219,6 +219,21 @@ def create_api_routes(app):
             ]
         }
 
+    @app.delete("/api/sessions/{session_id}/history")
+    async def clear_session_history(session_id: str):
+        """Clear chat history for a session."""
+        session = sessions.get(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        app_state = app.state.app_state
+        conv_id = session["conversation_id"]
+
+        # Clear the conversation history
+        app_state.history_manager.clear_conversation(conv_id)
+
+        return {"status": "history cleared"}
+
 
 async def _handle_agent_chat(session: dict, app_state, conv_id: str) -> ChatResponse:
     """Handle chat in agent mode."""

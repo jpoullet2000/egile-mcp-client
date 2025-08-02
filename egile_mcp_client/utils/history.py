@@ -110,6 +110,13 @@ class HistoryManager:
             del self.conversations[conversation_id]
             self.save_conversations()
 
+    def clear_conversation(self, conversation_id: str) -> None:
+        """Clear all messages from a conversation while keeping the conversation."""
+        if conversation_id in self.conversations:
+            self.conversations[conversation_id].messages = []
+            self.conversations[conversation_id].updated_at = datetime.now()
+            self.save_conversations()
+
     def clear_old_conversations(self) -> None:
         """Remove old conversations if over the limit."""
         if len(self.conversations) <= self.max_conversations:

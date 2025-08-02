@@ -41,7 +41,7 @@ ai_providers:
     model: "claude-3-sonnet-20240229"
   xai:
     api_key: "your-xai-api-key"
-    model: "grok-beta"
+    model: "grok-3"
 
 # MCP Servers
 mcp_servers:
