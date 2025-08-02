@@ -3,7 +3,7 @@
 import os
 import yaml
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 
 try:
@@ -82,48 +82,61 @@ class Config:
             self.history = HistoryConfig()
 
 
-def load_config(config_path: Optional[Path] = None) -> Config:
-    """Load configuration from file or environment variables."""
-    # Load environment variables from .env file if available
-    if load_dotenv is not None:
-        # Look for .env file in current directory first
-        env_path = Path(".env")
-        if env_path.exists():
-            print(f"Loading .env from: {env_path.absolute()}")
-            load_dotenv(env_path)
-        else:
-            # Try to find .env file relative to this config file
-            config_dir = Path(__file__).parent.parent
-            env_path = config_dir / ".env"
-            if env_path.exists():
-                print(f"Loading .env from: {env_path.absolute()}")
-                load_dotenv(env_path)
-            else:
-                # Try to load any .env file found
-                print("No .env file found, trying default load_dotenv()")
-                load_dotenv()
+def _load_env_file() -> None:
+    """Load environment variables from .env file if available."""
+    if load_dotenv is None:
+        return
 
-    if config_path is None:
-        # Look for config in current directory, then in ~/.egile-mcp-client/
-        candidates = [
-            Path("config.yaml"),
-            Path("config.yml"),
-            Path.home() / ".egile-mcp-client" / "config.yaml",
-            Path.home() / ".egile-mcp-client" / "config.yml",
-        ]
+    # Look for .env file in current directory first
+    env_path = Path(".env")
+    if env_path.exists():
+        print(f"Loading .env from: {env_path.absolute()}")
+        load_dotenv(env_path)
+        return
 
-        for candidate in candidates:
-            if candidate.exists():
-                config_path = candidate
-                break
+    # Try to find .env file relative to this config file
+    config_dir = Path(__file__).parent.parent
+    env_path = config_dir / ".env"
+    if env_path.exists():
+        print(f"Loading .env from: {env_path.absolute()}")
+        load_dotenv(env_path)
+        return
 
-    config_data = {}
+    # Try to load any .env file found
+    print("No .env file found, trying default load_dotenv()")
+    load_dotenv()
 
+
+def _find_config_file(config_path: Optional[Path] = None) -> Optional[Path]:
+    """Find configuration file, using provided path or searching default locations."""
+    if config_path is not None:
+        return config_path
+
+    # Look for config in current directory, then in ~/.egile-mcp-client/
+    candidates = [
+        Path("config.yaml"),
+        Path("config.yml"),
+        Path.home() / ".egile-mcp-client" / "config.yaml",
+        Path.home() / ".egile-mcp-client" / "config.yml",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return None
+
+
+def _load_config_file(config_path: Optional[Path]) -> Dict[str, Any]:
+    """Load configuration data from file."""
     if config_path and config_path.exists():
         with open(config_path, "r") as f:
-            config_data = yaml.safe_load(f) or {}
+            return yaml.safe_load(f) or {}
+    return {}
 
-    # Override with environment variables
+
+def _get_env_overrides() -> Dict[str, Any]:
+    """Get configuration overrides from environment variables."""
     env_overrides = {}
 
     # AI provider keys from environment
@@ -144,7 +157,13 @@ def load_config(config_path: Optional[Path] = None) -> Config:
                     model_env_key
                 ]
 
-    # Merge configuration (deep merge for ai_providers)
+    return env_overrides
+
+
+def _merge_config(
+    config_data: Dict[str, Any], env_overrides: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Merge configuration data with environment overrides."""
     merged_config = config_data.copy()
 
     if "ai_providers" in env_overrides:
@@ -164,18 +183,46 @@ def load_config(config_path: Optional[Path] = None) -> Config:
         if key != "ai_providers":
             merged_config[key] = value
 
-    # Parse configuration
+    return merged_config
+
+
+def _parse_config_sections(merged_config: Dict[str, Any]) -> tuple:
+    """Parse configuration sections into typed objects."""
+    # Parse AI providers
     ai_providers = {}
     for name, provider_data in merged_config.get("ai_providers", {}).items():
         ai_providers[name] = AIProviderConfig(**provider_data)
 
+    # Parse MCP servers
     mcp_servers = []
     for server_data in merged_config.get("mcp_servers", []):
         mcp_servers.append(MCPServerConfig(**server_data))
 
+    # Parse other sections
     web_interface = WebInterfaceConfig(**merged_config.get("web_interface", {}))
     logging_config = LoggingConfig(**merged_config.get("logging", {}))
     history_config = HistoryConfig(**merged_config.get("history", {}))
+
+    return ai_providers, mcp_servers, web_interface, logging_config, history_config
+
+
+def load_config(config_path: Optional[Path] = None) -> Config:
+    """Load configuration from file or environment variables."""
+    # Load environment variables from .env file if available
+    _load_env_file()
+
+    # Find and load configuration file
+    config_file_path = _find_config_file(config_path)
+    config_data = _load_config_file(config_file_path)
+
+    # Get environment overrides and merge
+    env_overrides = _get_env_overrides()
+    merged_config = _merge_config(config_data, env_overrides)
+
+    # Parse configuration sections
+    ai_providers, mcp_servers, web_interface, logging_config, history_config = (
+        _parse_config_sections(merged_config)
+    )
 
     return Config(
         ai_providers=ai_providers,

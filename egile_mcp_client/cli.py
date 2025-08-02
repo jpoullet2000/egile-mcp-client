@@ -375,6 +375,86 @@ def agent(ctx, provider, server):
     asyncio.run(_agent_mode(config, provider, server))
 
 
+async def _setup_mcp_client(config, server_name: str, agent) -> Optional[MCPClient]:
+    """Set up MCP client and connect to server."""
+    mcp_client = MCPClient(config)
+    with Progress(
+        SpinnerColumn(), TextColumn("[progress.description]{task.description}")
+    ) as progress:
+        task = progress.add_task(f"Connecting to {server_name}...", total=None)
+        await mcp_client.connect_to_server(server_name)
+        progress.remove_task(task)
+
+    # Get available tools and set them for the agent
+    tools = await mcp_client.list_tools(server_name)
+    if tools:
+        formatted_tools = []
+        for tool in tools:
+            formatted_tools.append(
+                {
+                    "name": tool.name,
+                    "description": tool.description,
+                    "input_schema": tool.input_schema,
+                }
+            )
+        agent.set_available_tools(formatted_tools)
+        console.print(
+            f"[green]Connected to MCP server {server_name} with {len(tools)} tools[/green]"
+        )
+
+    return mcp_client
+
+
+async def _handle_tool_calls(
+    mcp_client: MCPClient, server_name: str, response, history_manager, conv_id
+):
+    """Handle tool calls from AI response."""
+    if not response.tool_calls or not mcp_client:
+        return
+
+    console.print("[yellow]Agent is calling tools...[/yellow]")
+
+    for tool_call in response.tool_calls:
+        try:
+            tool_result = await mcp_client.call_tool(
+                server_name, tool_call["name"], tool_call["arguments"]
+            )
+
+            # Add tool result message
+            tool_message = Message(
+                role="tool",
+                content=json.dumps(tool_result),
+                tool_call_id=tool_call["id"],
+            )
+            history_manager.add_message(conv_id, tool_message)
+
+        except Exception as e:
+            console.print(f"[red]Tool call error: {e}[/red]")
+            tool_message = Message(
+                role="tool",
+                content=f"Error: {str(e)}",
+                tool_call_id=tool_call["id"],
+            )
+            history_manager.add_message(conv_id, tool_message)
+
+
+async def _get_ai_response(agent, messages, mcp_client):
+    """Get AI response with progress indicator."""
+    ai_tools = None
+    if mcp_client and agent.available_tools:
+        ai_tools = agent.format_tools_for_ai(agent.available_tools)
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+    ) as progress:
+        task = progress.add_task("Thinking...", total=None)
+        response = await agent.chat_completion(messages, tools=ai_tools)
+        progress.remove_task(task)
+
+    return response
+
+
 async def _agent_mode(config, provider_name: str, server_name: Optional[str]):
     """Run agent mode with AI provider."""
     try:
@@ -387,30 +467,7 @@ async def _agent_mode(config, provider_name: str, server_name: Optional[str]):
         # Create MCP client and connect if server specified
         mcp_client = None
         if server_name:
-            mcp_client = MCPClient(config)
-            with Progress(
-                SpinnerColumn(), TextColumn("[progress.description]{task.description}")
-            ) as progress:
-                task = progress.add_task(f"Connecting to {server_name}...", total=None)
-                await mcp_client.connect_to_server(server_name)
-                progress.remove_task(task)
-
-            # Get available tools and set them for the agent
-            tools = await mcp_client.list_tools(server_name)
-            if tools:
-                formatted_tools = []
-                for tool in tools:
-                    formatted_tools.append(
-                        {
-                            "name": tool.name,
-                            "description": tool.description,
-                            "input_schema": tool.input_schema,
-                        }
-                    )
-                agent.set_available_tools(formatted_tools)
-                console.print(
-                    f"[green]Connected to MCP server {server_name} with {len(tools)} tools[/green]"
-                )
+            mcp_client = await _setup_mcp_client(config, server_name, agent)
 
         # Create history manager
         history_manager = HistoryManager(
@@ -441,51 +498,19 @@ async def _agent_mode(config, provider_name: str, server_name: Optional[str]):
             # Get conversation history
             messages = history_manager.get_conversation_messages(conv_id)
 
-            # Prepare tools for AI if MCP server is connected
-            ai_tools = None
-            if mcp_client and agent.available_tools:
-                ai_tools = agent.format_tools_for_ai(agent.available_tools)
-
             try:
                 # Get AI response
-                with Progress(
-                    SpinnerColumn(),
-                    TextColumn("[progress.description]{task.description}"),
-                ) as progress:
-                    task = progress.add_task("Thinking...", total=None)
-                    response = await agent.chat_completion(messages, tools=ai_tools)
-                    progress.remove_task(task)
+                response = await _get_ai_response(agent, messages, mcp_client)
 
                 # Handle tool calls if any
+                await _handle_tool_calls(
+                    mcp_client, server_name, response, history_manager, conv_id
+                )
+
+                # If there were tool calls, get a final response after tool results
                 if response.tool_calls and mcp_client:
-                    console.print("[yellow]Agent is calling tools...[/yellow]")
-
-                    for tool_call in response.tool_calls:
-                        try:
-                            tool_result = await mcp_client.call_tool(
-                                server_name, tool_call["name"], tool_call["arguments"]
-                            )
-
-                            # Add tool result message
-                            tool_message = Message(
-                                role="tool",
-                                content=json.dumps(tool_result),
-                                tool_call_id=tool_call["id"],
-                            )
-                            history_manager.add_message(conv_id, tool_message)
-
-                        except Exception as e:
-                            console.print(f"[red]Tool call error: {e}[/red]")
-                            tool_message = Message(
-                                role="tool",
-                                content=f"Error: {e}",
-                                tool_call_id=tool_call["id"],
-                            )
-                            history_manager.add_message(conv_id, tool_message)
-
-                    # Get final response after tool calls
                     messages = history_manager.get_conversation_messages(conv_id)
-                    response = await agent.chat_completion(messages, tools=ai_tools)
+                    response = await _get_ai_response(agent, messages, mcp_client)
 
                 # Add assistant response to history
                 history_manager.add_message(conv_id, response)
