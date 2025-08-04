@@ -10,7 +10,7 @@ This repository includes a comprehensive CI/CD pipeline using GitHub Actions tha
 
 **Triggers:** Push to `main`/`develop`, Pull requests
 **Features:**
-- ✅ Multi-version Python testing (3.9, 3.10, 3.11, 3.12)
+- ✅ Multi-version Python testing (3.10, 3.11, 3.12)
 - ✅ Automated testing with pytest and coverage reporting
 - ✅ Code quality checks (black, isort, flake8, mypy)
 - ✅ Security scanning (bandit, safety)
