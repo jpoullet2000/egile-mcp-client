@@ -190,7 +190,18 @@ def _parse_config_sections(merged_config: Dict[str, Any]) -> tuple:
     """Parse configuration sections into typed objects."""
     # Parse AI providers
     ai_providers = {}
+    # Default models for each provider
+    default_models = {
+        "openai": "gpt-4",
+        "anthropic": "claude-3-sonnet-20240229",
+        "xai": "grok-3",
+    }
+
     for name, provider_data in merged_config.get("ai_providers", {}).items():
+        # Ensure model is set, use default if missing
+        if "model" not in provider_data:
+            provider_data = provider_data.copy()  # Don't modify original
+            provider_data["model"] = default_models.get(name, "gpt-4")
         ai_providers[name] = AIProviderConfig(**provider_data)
 
     # Parse MCP servers
