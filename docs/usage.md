@@ -100,23 +100,17 @@ Use AI agents that can intelligently interact with MCP tools:
 
 ```bash
 # Interactive chat with AI agent
-egile-mcp-client chat --mode agent --provider openai
+egile-mcp-client agent --provider openai
 
 # Chat with specific model
-egile-mcp-client chat --mode agent --provider anthropic --model claude-3-opus
-
-# One-shot query
-egile-mcp-client ask --provider openai "Search for information about machine learning"
-
-# Batch processing
-egile-mcp-client batch --provider openai --input questions.txt --output answers.txt
+egile-mcp-client agent --provider anthropic --model claude-3-opus
 ```
 
 #### Agent Mode Examples
 
 ```console
 # Start interactive chat
-$ egile-mcp-client chat --mode agent --provider openai
+$ egile-mcp-client agent --provider openai
 Starting chat with OpenAI (gpt-4)...
 Connected to servers: web_search, local_tools
 
@@ -135,16 +129,6 @@ You: What about wind energy specifically?
 Assistant: [Searches for wind energy trends and provides detailed analysis]
 
 # One-shot query example
-$ egile-mcp-client ask --provider openai "What are the latest developments in AI?"
-Searching for AI developments... 
-
-The latest AI developments include:
-- Large Language Model improvements
-- Multi-modal AI capabilities
-- Edge AI deployment
-[Detailed response based on MCP tool results]
-```
-
 ### Web Interface
 
 Start the web server for browser-based interactions:
@@ -185,7 +169,7 @@ egile-mcp-client web --reload --debug
 egile-mcp-client --config /path/to/config.yaml chat
 
 # Override configuration with environment variables
-MCP_DEFAULT_PROVIDER=anthropic egile-mcp-client chat
+MCP_DEFAULT_PROVIDER=anthropic egile-mcp-client agent
 
 # Validate and test configuration
 egile-mcp-client config validate
@@ -198,17 +182,17 @@ egile-mcp-client config show
 #### Server Management
 
 ```bash
-# List all configured servers
-egile-mcp-client servers list
+# List available tools from all servers
+egile-mcp-client tools
 
-# Test connection to specific server
-egile-mcp-client servers test --name web_search
+# List tools from specific server
+egile-mcp-client tools --server web_search
 
-# Get server information
-egile-mcp-client servers info --name web_search
+# Show configuration
+egile-mcp-client config show
 
-# Health check all servers
-egile-mcp-client servers health
+# Validate configuration
+egile-mcp-client config validate
 ```
 
 #### Tool Management
@@ -472,11 +456,8 @@ config.performance.cache.ttl = 300  # 5 minutes
 ### Connection Issues
 
 ```bash
-# Test server connectivity
-egile-mcp-client servers test --name server_name
-
-# Check server logs
-egile-mcp-client logs --server server_name
+# Test server connectivity by listing tools
+egile-mcp-client tools --server server_name
 
 # Validate configuration
 egile-mcp-client config validate
@@ -487,7 +468,7 @@ egile-mcp-client config validate
 ```bash
 # Enable debug logging
 export MCP_LOG_LEVEL=DEBUG
-egile-mcp-client chat --mode agent
+egile-mcp-client agent
 
 # Or in configuration
 logging:

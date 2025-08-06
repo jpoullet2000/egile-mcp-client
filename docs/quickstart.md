@@ -82,7 +82,7 @@ Then start the agent:
 
 ```bash
 # Start interactive chat with AI agent
-egile-mcp-client chat --mode agent --provider openai
+egile-mcp-client agent --provider openai
 ```
 
 ### Option C: Web Interface (Most User-Friendly)
@@ -113,7 +113,7 @@ Results: [search results would appear here]
 ### Agent Mode Example
 
 ```console
-$ egile-mcp-client chat --mode agent --provider openai
+$ egile-mcp-client agent --provider openai
 Starting chat with OpenAI agent...
 
 You: Can you help me search for information about machine learning?
@@ -183,11 +183,11 @@ curl http://localhost:8000/health  # Test server connectivity
 # Show help
 egile-mcp-client --help
 
-# List configured servers
-egile-mcp-client servers
+# List available tools from all servers
+egile-mcp-client tools
 
-# Test connection to a server
-egile-mcp-client test --server server_name
+# Test connection to a server by listing its tools
+egile-mcp-client tools --server server_name
 
 # Start web interface
 egile-mcp-client web
@@ -196,7 +196,7 @@ egile-mcp-client web
 egile-mcp-client direct --server server_name
 
 # Agent mode chat
-egile-mcp-client chat --mode agent --provider openai
+egile-mcp-client agent --provider openai
 ```
 
 ### Configuration Files

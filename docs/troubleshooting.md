@@ -154,7 +154,7 @@ poetry install -vvv
 
 2. **Verify configuration**:
    ```bash
-   egile-mcp-client servers test --name server_name
+   egile-mcp-client tools --server server_name
    egile-mcp-client config show
    ```
 
@@ -195,7 +195,7 @@ poetry install -vvv
 3. **Enable debug logging**:
    ```bash
    export MCP_LOG_LEVEL=DEBUG
-   egile-mcp-client chat --mode direct --server ws_server
+   egile-mcp-client direct --server ws_server
    ```
 
 ### Stdio Connection Issues
@@ -445,12 +445,10 @@ egile-mcp-client config validate
 egile-mcp-client config show
 
 # Test server connections
-egile-mcp-client servers health
-egile-mcp-client servers test --name server_name
+egile-mcp-client tools --server server_name
 
-# Test tools
-egile-mcp-client tools list --server server_name
-egile-mcp-client tools test --server server_name --tool tool_name
+# List all available tools
+egile-mcp-client tools
 
 # Check system status
 egile-mcp-client status
