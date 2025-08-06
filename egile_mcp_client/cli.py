@@ -16,7 +16,7 @@ from .agents.anthropic_agent import AnthropicAgent
 from .agents.base import AIAgent, Message
 from .agents.openai_agent import OpenAIAgent
 from .agents.xai_agent import XAIAgent
-from .config import get_ai_provider_config, get_mcp_server_config, load_config
+from .config import get_ai_provider_config, load_config
 from .mcp.client import MCPClient
 from .utils.history import HistoryManager
 from .utils.logging import get_logger, setup_logging
@@ -639,58 +639,85 @@ def config_show(ctx):
 @click.pass_context
 def config_validate(ctx):
     """Validate configuration syntax and settings."""
-    try:
-        config_data = ctx.parent.parent.obj.get("config")
-        if not config_data:
-            console.print("[red]No configuration loaded[/red]")
-            return
+    config_data = _get_config_data(ctx)
+    if not config_data:
+        return
 
-        console.print("[green]✓[/green] Configuration syntax is valid")
+    console.print("[green]✓[/green] Configuration syntax is valid")
 
-        # Validate AI providers
-        if config_data.ai_providers:
-            console.print("[green]✓[/green] AI providers configuration found")
-            for provider_name in config_data.ai_providers.keys():
-                console.print(f"  - {provider_name}")
-        else:
-            console.print("[yellow]⚠[/yellow] No AI providers configured")
+    _validate_ai_providers(config_data)
+    _validate_mcp_servers(config_data)
+    _validate_defaults(config_data)
 
-        # Validate MCP servers
-        if config_data.mcp_servers:
-            console.print(
-                f"[green]✓[/green] {len(config_data.mcp_servers)} MCP server(s) configured"
-            )
-            for server in config_data.mcp_servers:
-                console.print(f"  - {server.name} ({server.type})")
-        else:
-            console.print("[yellow]⚠[/yellow] No MCP servers configured")
+    console.print("\n[green]Configuration validation complete![/green]")
 
-        # Check defaults
-        if config_data.default_ai_provider:
-            if config_data.default_ai_provider in config_data.ai_providers:
-                console.print(
-                    f"[green]✓[/green] Default AI provider: {config_data.default_ai_provider}"
-                )
-            else:
-                console.print(
-                    f"[red]✗[/red] Default AI provider '{config_data.default_ai_provider}' not found in configuration"
-                )
 
-        if config_data.default_mcp_server:
-            server_names = [s.name for s in config_data.mcp_servers]
-            if config_data.default_mcp_server in server_names:
-                console.print(
-                    f"[green]✓[/green] Default MCP server: {config_data.default_mcp_server}"
-                )
-            else:
-                console.print(
-                    f"[red]✗[/red] Default MCP server '{config_data.default_mcp_server}' not found in configuration"
-                )
+def _get_config_data(ctx):
+    """Get configuration data from context."""
+    config_data = ctx.parent.parent.obj.get("config")
+    if not config_data:
+        console.print("[red]No configuration loaded[/red]")
+        return None
+    return config_data
 
-        console.print("\n[green]Configuration validation complete![/green]")
 
-    except Exception as e:
-        console.print(f"[red]Configuration validation failed: {e}[/red]")
+def _validate_ai_providers(config_data):
+    """Validate AI providers configuration."""
+    if config_data.ai_providers:
+        console.print("[green]✓[/green] AI providers configuration found")
+        for provider_name in config_data.ai_providers.keys():
+            console.print(f"  - {provider_name}")
+    else:
+        console.print("[yellow]⚠[/yellow] No AI providers configured")
+
+
+def _validate_mcp_servers(config_data):
+    """Validate MCP servers configuration."""
+    if config_data.mcp_servers:
+        console.print(
+            f"[green]✓[/green] {len(config_data.mcp_servers)} MCP server(s) configured"
+        )
+        for server in config_data.mcp_servers:
+            console.print(f"  - {server.name} ({server.type})")
+    else:
+        console.print("[yellow]⚠[/yellow] No MCP servers configured")
+
+
+def _validate_defaults(config_data):
+    """Validate default provider and server settings."""
+    _validate_default_ai_provider(config_data)
+    _validate_default_mcp_server(config_data)
+
+
+def _validate_default_ai_provider(config_data):
+    """Validate default AI provider setting."""
+    if not config_data.default_ai_provider:
+        return
+
+    if config_data.default_ai_provider in config_data.ai_providers:
+        console.print(
+            f"[green]✓[/green] Default AI provider: {config_data.default_ai_provider}"
+        )
+    else:
+        console.print(
+            f"[red]✗[/red] Default AI provider '{config_data.default_ai_provider}' not found in configuration"
+        )
+
+
+def _validate_default_mcp_server(config_data):
+    """Validate default MCP server setting."""
+    if not config_data.default_mcp_server:
+        return
+
+    server_names = [s.name for s in config_data.mcp_servers]
+    if config_data.default_mcp_server in server_names:
+        console.print(
+            f"[green]✓[/green] Default MCP server: {config_data.default_mcp_server}"
+        )
+    else:
+        console.print(
+            f"[red]✗[/red] Default MCP server '{config_data.default_mcp_server}' not found in configuration"
+        )
 
 
 @config.command("test-servers")

@@ -4,7 +4,7 @@ import asyncio
 import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, AsyncGenerator, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import httpx
 import websockets
@@ -244,40 +244,68 @@ class StdioMCPConnection(MCPConnection):
 
     async def _listen_for_messages(self) -> None:
         """Listen for stdout messages from the process."""
-        if not self.process or not self.process.stdout:
+        if not self._can_listen():
             return
 
         try:
-            while True:
-                # Read line from stdout asynchronously
-                line_bytes = await self.process.stdout.readline()
-                if not line_bytes:
-                    break
-
-                line = line_bytes.decode().strip()
-                if not line:
-                    continue
-
-                try:
-                    data = json.loads(line)
-                    if "id" in data and data["id"] in self.pending_requests:
-                        # This is a response to a pending request
-                        future = self.pending_requests.pop(data["id"])
-                        response = MCPResponse(**data)
-                        future.set_result(response)
-                    else:
-                        # This is a notification
-                        logger.info(f"Received notification: {data}")
-
-                except json.JSONDecodeError as e:
-                    logger.error(f"Invalid JSON received: {e}")
-                except Exception as e:
-                    logger.error(f"Error processing message: {e}")
-
+            await self._message_loop()
         except Exception as e:
             logger.error(f"Error in message listener: {e}")
         finally:
             self.is_connected = False
+
+    def _can_listen(self) -> bool:
+        """Check if we can listen for messages."""
+        return self.process is not None and self.process.stdout is not None
+
+    async def _message_loop(self) -> None:
+        """Main message listening loop."""
+        while True:
+            line = await self._read_message_line()
+            if not line:
+                break
+
+            if line.strip():
+                await self._process_message_line(line.strip())
+
+    async def _read_message_line(self) -> str:
+        """Read a single line from the process stdout."""
+        if not self.process or not self.process.stdout:
+            return ""
+
+        line_bytes = await self.process.stdout.readline()
+        return line_bytes.decode() if line_bytes else ""
+
+    async def _process_message_line(self, line: str) -> None:
+        """Process a single message line."""
+        try:
+            data = json.loads(line)
+            await self._handle_message_data(data)
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON received: {e}")
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
+
+    async def _handle_message_data(self, data: dict) -> None:
+        """Handle parsed message data."""
+        if self._is_response(data):
+            self._handle_response(data)
+        else:
+            self._handle_notification(data)
+
+    def _is_response(self, data: dict) -> bool:
+        """Check if data is a response to a pending request."""
+        return "id" in data and data["id"] in self.pending_requests
+
+    def _handle_response(self, data: dict) -> None:
+        """Handle response to a pending request."""
+        future = self.pending_requests.pop(data["id"])
+        response = MCPResponse(**data)
+        future.set_result(response)
+
+    def _handle_notification(self, data: dict) -> None:
+        """Handle notification message."""
+        logger.info(f"Received notification: {data}")
 
     async def send_request(self, request: MCPRequest) -> MCPResponse:
         """Send request via stdin and wait for response."""
