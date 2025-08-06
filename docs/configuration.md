@@ -114,10 +114,6 @@ performance:
   connection_pool_size: 10
   request_timeout: 30
   max_concurrent_requests: 5
-  cache:
-    enabled: true
-    ttl: 300  # seconds
-    max_size: 1000
 
 # Feature flags
 features:

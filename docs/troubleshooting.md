@@ -274,13 +274,12 @@ poetry install -vvv
      - timeout: 15  # Reduce server timeout
    ```
 
-2. **Enable caching**:
+2. **Adjust connection settings**:
    ```yaml
    performance:
-     cache:
-       enabled: true
-       ttl: 300
-       max_size: 1000
+     connection_pool_size: 10
+     request_timeout: 30
+     max_concurrent_requests: 5
    ```
 
 3. **Use concurrent requests**:

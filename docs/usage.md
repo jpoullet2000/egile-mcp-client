@@ -443,14 +443,6 @@ async def concurrent_requests():
     return results
 ```
 
-### Caching
-
-```python
-# Enable response caching
-config.performance.cache.enabled = True
-config.performance.cache.ttl = 300  # 5 minutes
-```
-
 ## Troubleshooting
 
 ### Connection Issues

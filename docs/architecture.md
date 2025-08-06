@@ -366,16 +366,24 @@ class CustomMiddleware(BaseMiddleware):
 - Circuit breaker pattern
 
 ### 2. Caching Strategy
+Currently, the application uses basic in-memory storage patterns:
+
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   L1 Cache  │    │   L2 Cache  │    │  Persistent │
-│  (Memory)   │    │   (Redis)   │    │   Storage   │
-├─────────────┤    ├─────────────┤    ├─────────────┤
-│ - Tool defs │    │ - Responses │    │ - Config    │
-│ - Server    │    │ - Sessions  │    │ - History   │
-│   metadata  │    │ - User data │    │ - Logs      │
-└─────────────┘    └─────────────┘    └─────────────┘
+┌─────────────────┐    ┌─────────────────┐
+│   In-Memory     │    │   File System   │
+│   Storage       │    │   Storage       │
+├─────────────────┤    ├─────────────────┤
+│ - Web sessions │    │ - Configuration │
+│ - Connection    │    │ - Conversation  │
+│   metadata      │    │   history       │
+│ - Tool schemas  │    │ - Logs          │
+└─────────────────┘    └─────────────────┘
 ```
+
+**Future Enhancement Opportunities:**
+- Redis for session storage
+- Tool definition caching
+- Response caching with TTL
 
 ### 3. Async Processing
 - Non-blocking I/O
@@ -417,39 +425,49 @@ MCPException
 ### 1. Test Structure
 ```
 tests/
-├── unit/
-│   ├── test_agents/
-│   ├── test_mcp/
-│   ├── test_config/
-│   └── test_utils/
-├── integration/
-│   ├── test_e2e/
-│   ├── test_web/
-│   └── test_cli/
-└── fixtures/
-    ├── mock_servers/
-    ├── test_configs/
-    └── sample_data/
+├── __init__.py
+├── conftest.py              # pytest configuration and fixtures
+├── test_ai_agents.py        # AI agent functionality tests
+├── test_basic.py            # Basic functionality tests
+├── test_config_loading.py   # Configuration loading tests
+└── test_mcp_client.py       # MCP client functionality tests
 ```
 
 ### 2. Testing Strategies
-- **Unit Tests**: Component isolation with mocks
-- **Integration Tests**: Real MCP server interactions
-- **End-to-End Tests**: Full workflow testing
-- **Performance Tests**: Load and stress testing
+- **Unit Tests**: Basic functionality and configuration testing using pytest
+- **Async Testing**: Support for async/await patterns with pytest-asyncio
+- **Configuration Tests**: Validation of config loading and parsing
+- **Agent Tests**: AI agent functionality and integration testing
+- **Client Tests**: MCP client core functionality
+
+**Current Test Coverage:**
+- Configuration loading and validation
+- AI agent implementations
+- MCP client basic operations
+- Error handling and edge cases
 
 ## Deployment Architecture
 
 ### 1. Packaging
-- PyPI distribution
-- Docker containers
-- Conda packages
-- Platform-specific installers
+- **PyPI distribution**: Configured via `pyproject.toml` using Poetry
+- **Docker containers**: `Dockerfile` included for containerized deployment
+- **Poetry**: Used for dependency management and packaging
+
+**Available Installation Methods:**
+- `pip install egile-mcp-client` (when published to PyPI)
+- `poetry install` (for development)
+- `docker build` (for containerized deployment)
 
 ### 2. Configuration Management
-- Environment-specific configs
-- Secret management
-- Feature flags
-- A/B testing support
+- **YAML Configuration**: Primary configuration via `config.yaml`
+- **Environment Variables**: Support for `.env` files and system environment variables
+- **Configuration Validation**: Built-in validation using Pydantic
+- **Example Configurations**: `config.example.yaml` provided as template
+
+**Current Configuration Features:**
+- AI provider settings (OpenAI, Anthropic, xAI)
+- MCP server connection definitions
+- Logging configuration
+- Environment variable substitution
 
 This architecture provides a solid foundation for building robust, scalable MCP client applications while maintaining flexibility for future enhancements and customizations.
