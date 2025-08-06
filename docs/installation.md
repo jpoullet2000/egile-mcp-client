@@ -93,7 +93,7 @@ The client requires several Python packages that are automatically installed:
 - **pydantic**: Data validation and settings management
 - **pyyaml**: YAML configuration file support
 - **rich**: Rich terminal output formatting
-- **typer**: Modern CLI framework
+- **click**: Command-line interface framework
 
 ### AI Provider Dependencies
 - **openai**: OpenAI API client

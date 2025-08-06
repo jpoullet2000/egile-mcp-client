@@ -19,7 +19,7 @@ Egile MCP Client is designed with a modular, extensible architecture that separa
 │                    User Interfaces                         │
 ├─────────────┬─────────────────┬─────────────────────────────┤
 │     CLI     │   Web Interface │    Programmatic API         │
-│  (Typer)    │    (FastAPI)    │     (Python SDK)            │
+│   (Click)   │    (FastAPI)    │     (Python SDK)            │
 └─────────────┴─────────────────┴─────────────────────────────┘
                               │
 ┌─────────────────────────────────────────────────────────────┐
@@ -49,7 +49,7 @@ Egile MCP Client is designed with a modular, extensible architecture that separa
 ### 1. User Interface Layer
 
 #### Command Line Interface (CLI)
-- **Framework**: Typer/Click
+- **Framework**: Click
 - **Location**: `egile_mcp_client/cli.py`
 - **Responsibilities**:
   - Command parsing and validation
@@ -61,10 +61,10 @@ Egile MCP Client is designed with a modular, extensible architecture that separa
 # CLI Architecture
 ┌─────────────────┐
 │   CLI Router    │
-│   (typer.Typer) │
+│   (click.Group) │
 ├─────────────────┤
 │ Commands:       │
-│ - chat          │
+│ - agent         │
 │ - direct        │
 │ - tools         │
 │ - web           │

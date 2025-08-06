@@ -13,7 +13,7 @@ The Egile MCP Client is a comprehensive Python client for interacting with Model
 - **Agent Mode**: Use AI agents (OpenAI, Anthropic, or xAI) that can interact with MCP servers
 
 ### Multiple Interfaces
-- **Command Line Interface**: Full-featured CLI using Typer
+- **Command Line Interface**: Full-featured CLI using Click
 - **Web Interface**: FastAPI-based web application with chat interface
 - **Python API**: Direct programmatic access to all functionality
 

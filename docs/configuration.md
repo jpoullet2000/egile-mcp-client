@@ -358,7 +358,7 @@ You can maintain multiple configuration profiles:
 
 ```bash
 # Development profile
-egile-mcp-client --config config.dev.yaml chat
+egile-mcp-client --config config.dev.yaml agent
 
 # Production profile  
 egile-mcp-client --config config.prod.yaml web
@@ -378,8 +378,8 @@ egile-mcp-client config validate
 # Show current configuration
 egile-mcp-client config show
 
-# Test server connections
-egile-mcp-client config test-servers
+# Test server connections (test connectivity by listing tools)
+egile-mcp-client tools
 ```
 
 ### Common Issues
@@ -395,7 +395,7 @@ Enable debug mode for detailed configuration information:
 
 ```bash
 export MCP_LOG_LEVEL=DEBUG
-egile-mcp-client --config config.yaml chat
+egile-mcp-client --config config.yaml agent
 ```
 
 This will show:

@@ -425,10 +425,9 @@ To add new CLI commands:
 1. **Add the command**:
    ```python
    # egile_mcp_client/cli.py
-   @app.command()
-   def new_command(
-       parameter: str = typer.Argument(..., help="Parameter description")
-   ):
+   @cli.command()
+   @click.option("--parameter", help="Parameter description")
+   def new_command(parameter: str):
        """New command description."""
        # Implementation
        pass

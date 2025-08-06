@@ -62,12 +62,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - WebSocket-based real-time updates
   
 - **CLI Commands**
-  - `chat` - Interactive chat mode
+  - `agent` - Interactive chat mode
   - `direct` - Direct server interaction
   - `tools` - Tool management and testing
   - `web` - Web interface launcher
   - `config` - Configuration management
-  - `servers` - Server management utilities
   
 - **Developer Features**
   - Comprehensive Python SDK
@@ -178,7 +177,7 @@ When version 1.0.0 is released, this section will include:
 ### Third-Party Libraries
 We gratefully acknowledge the following open-source projects:
 - **FastAPI** - Modern web framework for APIs
-- **Typer** - Modern CLI framework
+- **Click** - Command-line interface framework
 - **httpx** - Next generation HTTP client
 - **websockets** - WebSocket client and server library
 - **Pydantic** - Data validation using Python type hints
