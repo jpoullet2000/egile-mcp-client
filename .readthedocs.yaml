@@ -32,12 +32,9 @@ formats:
 python:
   install:
     - requirements: docs/requirements.txt
-    - requirements: requirements.txt  # If you have a main requirements file
     # Install the package itself in editable mode for autodoc
     - method: pip
       path: .
-      extra_requirements:
-        - docs  # If you have a docs extra in pyproject.toml
 
 # Configure search
 search:
