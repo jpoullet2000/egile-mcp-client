@@ -10,12 +10,7 @@ from .connection import (
     StdioMCPConnection,
     WebSocketMCPConnection,
 )
-from .protocol import (
-    MCPProtocol,
-    PromptInfo,
-    ResourceInfo,
-    ToolInfo,
-)
+from .protocol import MCPProtocol, PromptInfo, ResourceInfo, ToolInfo
 
 logger = logging.getLogger(__name__)
 
