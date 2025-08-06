@@ -83,15 +83,15 @@ Egile MCP Client is designed with a modular, extensible architecture that separa
 
 ```text
 # Web Architecture
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   FastAPI App   │────│   API Routes    │────│   WebSocket     │
-│                 │    │                 │    │   Handler       │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ - CORS          │    │ - /chat         │    │ - Real-time     │
-│ - Middleware    │    │ - /tools        │    │   chat          │
-│ - Static files  │    │ - /servers      │    │ - Server events │
-│ - Templates     │    │ - /config       │    │ - Status        │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌─────────────────┐
+│   FastAPI App   │────│   API Routes    │
+│                 │    │                 │
+├─────────────────┤    ├─────────────────┤
+│ - CORS          │    │ - /api/chat     │
+│ - Middleware    │    │ - /api/servers  │
+│ - Static files  │    │ - /api/sessions │
+│ - Templates     │    │ - /api/providers│
+└─────────────────┘    └─────────────────┘
 ```
 
 #### Programmatic API
@@ -316,46 +316,47 @@ class CustomConnection(BaseConnection):
         pass
 ```
 
-### 3. Middleware
-Add custom middleware for request/response processing:
+### 3. Configuration Extensions
+Extend the configuration system for custom settings:
 
 ```python
-from egile_mcp_client.middleware import BaseMiddleware
+from egile_mcp_client.config import Config
 
-class CustomMiddleware(BaseMiddleware):
-    async def process_request(self, request):
-        # Pre-processing
-        return request
-    
-    async def process_response(self, response):
-        # Post-processing
-        return response
+# Custom configuration can be added via environment variables
+# or by extending the YAML configuration structure
+```
+
+### 4. Web Interface Extensions
+The FastAPI web application can be extended with additional routes:
+
+```python
+from egile_mcp_client.web.app import create_app
+
+# Additional routes can be added to the FastAPI app
+app = create_app()
+
+@app.get("/api/custom")
+async def custom_endpoint():
+    return {"message": "Custom functionality"}
 ```
 
 ## Security Architecture
 
-### 1. Authentication & Authorization
-- API key management
-- Token-based authentication
-- Role-based access control (future)
+### 1. Current Security Features
+- **API Key Management**: AI provider API keys stored in configuration
+- **Configuration Validation**: Pydantic-based validation of inputs
+- **Environment Variable Support**: Secure storage of sensitive values
 
 ### 2. Input Validation
-- Request sanitization
-- Parameter validation
-- Type checking
-- Size limits
+- **Configuration Validation**: Type checking via Pydantic models
+- **Basic Parameter Validation**: Built-in validation for CLI and API inputs
 
-### 3. Network Security
-- SSL/TLS enforcement
-- Certificate validation
-- Connection encryption
-- Rate limiting
-
-### 4. Data Protection
-- Conversation encryption at rest
-- PII detection and redaction
-- Audit logging
-- Secure key storage
+### 3. Planned Security Enhancements
+- Authentication and authorization for web interface
+- Rate limiting for API endpoints
+- SSL/TLS enforcement for connections
+- Enhanced input sanitization
+- Audit logging capabilities
 
 ## Performance Considerations
 
