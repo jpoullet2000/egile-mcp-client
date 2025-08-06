@@ -60,16 +60,18 @@ jobs:
       run: |
         # Test various CLI commands
         poetry run egile-mcp-client --help
-        poetry run egile-mcp-client config --validate
-        poetry run egile-mcp-client tools --list || true  # Allow failure if no servers configured
+        poetry run egile-mcp-client config validate
+        poetry run egile-mcp-client tools || true  # Allow failure if no servers configured
 
     - name: Test web interface startup
       run: |
         # Start web interface and test it responds
-        poetry run egile-mcp-client web --port 8080 &
+        poetry run egile-mcp-client web &
+        WEB_PID=$!
         sleep 10
-        curl -f http://localhost:8080/health || echo "Web interface health check failed"
-        pkill -f "egile-mcp-client web" || true
+        # Check if the web interface started (get port from config)
+        curl -f http://localhost:8000/health || echo "Web interface health check failed (expected if no health endpoint)"
+        kill $WEB_PID || true
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -91,10 +93,10 @@ jobs:
     - name: Run container smoke test
       run: |
         docker run --rm egile-mcp-client:test --help
-        docker run --rm egile-mcp-client:test config --validate
+        docker run --rm egile-mcp-client:test config validate
 
     - name: Test container with volume mounts
       run: |
         mkdir -p test-config
         cp config.example.yaml test-config/config.yaml
-        docker run --rm -v $(pwd)/test-config:/app/config egile-mcp-client:test config --validate
+        docker run --rm -v $(pwd)/test-config:/app/config egile-mcp-client:test config validate
