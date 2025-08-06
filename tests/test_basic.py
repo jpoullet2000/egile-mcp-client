@@ -1,14 +1,15 @@
 """Test suite for the MCP client."""
 
-import pytest
 import asyncio
 from pathlib import Path
 
+import pytest
+
 from egile_mcp_client.config import (
-    load_config,
-    Config,
     AIProviderConfig,
+    Config,
     MCPServerConfig,
+    load_config,
 )
 
 

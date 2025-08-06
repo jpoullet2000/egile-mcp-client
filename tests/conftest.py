@@ -1,7 +1,8 @@
 """Test configuration for pytest."""
 
-import pytest
 import asyncio
+
+import pytest
 
 
 @pytest.fixture(scope="session")

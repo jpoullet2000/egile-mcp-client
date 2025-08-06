@@ -14,11 +14,10 @@ except ImportError:
     HTTPException = None
     BaseModel = None
 
+from ..agents.anthropic_agent import AnthropicAgent
 from ..agents.base import Message
 from ..agents.openai_agent import OpenAIAgent
-from ..agents.anthropic_agent import AnthropicAgent
 from ..agents.xai_agent import XAIAgent
-
 
 logger = logging.getLogger(__name__)
 

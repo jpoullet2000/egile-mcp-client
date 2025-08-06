@@ -1,9 +1,9 @@
 """MCP Protocol implementation and message handling."""
 
 import json
-from typing import Dict, List, Any, Optional, Union
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
 
 
 class MessageType(Enum):

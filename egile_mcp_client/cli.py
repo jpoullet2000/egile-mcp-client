@@ -4,23 +4,22 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 import click
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
-from .config import load_config, get_mcp_server_config, get_ai_provider_config
-from .mcp.client import MCPClient
-from .agents.base import Message, AIAgent
-from .agents.openai_agent import OpenAIAgent
 from .agents.anthropic_agent import AnthropicAgent
+from .agents.base import AIAgent, Message
+from .agents.openai_agent import OpenAIAgent
 from .agents.xai_agent import XAIAgent
+from .config import get_ai_provider_config, get_mcp_server_config, load_config
+from .mcp.client import MCPClient
 from .utils.history import HistoryManager
-from .utils.logging import setup_logging, get_logger
-
+from .utils.logging import get_logger, setup_logging
 
 console = Console()
 logger = get_logger(__name__)
@@ -565,8 +564,9 @@ def web(ctx):
     config = ctx.obj["config"]
 
     try:
-        from .web.app import create_app
         import uvicorn
+
+        from .web.app import create_app
 
         app = create_app(config)
 

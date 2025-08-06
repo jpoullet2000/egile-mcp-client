@@ -1,16 +1,17 @@
 """Test suite for configuration loading and environment variables."""
 
-import pytest
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
+
+import pytest
 
 from egile_mcp_client.config import (
-    load_config,
-    Config,
     AIProviderConfig,
+    Config,
     MCPServerConfig,
+    load_config,
 )
 
 

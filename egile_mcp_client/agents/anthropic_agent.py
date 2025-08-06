@@ -1,8 +1,7 @@
 """Anthropic Claude agent implementation."""
 
-import json
 import logging
-from typing import List, Dict, Any, Optional, AsyncGenerator
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 try:
     from anthropic import AsyncAnthropic
@@ -10,7 +9,6 @@ except ImportError:
     AsyncAnthropic = None
 
 from .base import AIAgent, Message
-
 
 logger = logging.getLogger(__name__)
 

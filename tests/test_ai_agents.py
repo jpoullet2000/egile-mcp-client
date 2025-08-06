@@ -1,8 +1,9 @@
 """Test suite for AI agent functionality and model validation."""
 
-import pytest
 import os
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from egile_mcp_client.config import AIProviderConfig
 
@@ -64,8 +65,8 @@ class TestAIAgents:
     @pytest.mark.asyncio
     async def test_openai_agent_chat(self, openai_config):
         """Test OpenAI agent chat functionality."""
-        from egile_mcp_client.agents.openai_agent import OpenAIAgent
         from egile_mcp_client.agents.base import Message
+        from egile_mcp_client.agents.openai_agent import OpenAIAgent
 
         # Mock the AsyncOpenAI client directly in the module
         with patch(
@@ -137,8 +138,8 @@ class TestAIAgents:
     @pytest.mark.asyncio
     async def test_xai_agent_chat(self, xai_config):
         """Test xAI agent chat functionality."""
-        from egile_mcp_client.agents.xai_agent import XAIAgent
         from egile_mcp_client.agents.base import Message
+        from egile_mcp_client.agents.xai_agent import XAIAgent
 
         # Mock the AsyncOpenAI client directly in the module
         with patch(
@@ -176,8 +177,8 @@ class TestAIAgents:
 
     def test_agent_classes_exist(self):
         """Test that agent classes can be imported."""
-        from egile_mcp_client.agents.openai_agent import OpenAIAgent
         from egile_mcp_client.agents.anthropic_agent import AnthropicAgent
+        from egile_mcp_client.agents.openai_agent import OpenAIAgent
         from egile_mcp_client.agents.xai_agent import XAIAgent
 
         # Just test that the classes exist and can be imported

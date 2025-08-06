@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import List, Dict, Any, Optional, AsyncGenerator
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 try:
     from openai import AsyncOpenAI
@@ -10,7 +10,6 @@ except ImportError:
     AsyncOpenAI = None
 
 from .base import AIAgent, Message, ToolCall
-
 
 logger = logging.getLogger(__name__)
 

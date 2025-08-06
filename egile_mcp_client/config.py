@@ -1,10 +1,11 @@
 """Configuration management for the MCP client."""
 
 import os
-import yaml
-from pathlib import Path
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import yaml
 
 try:
     from dotenv import load_dotenv
@@ -231,9 +232,13 @@ def load_config(config_path: Optional[Path] = None) -> Config:
     merged_config = _merge_config(config_data, env_overrides)
 
     # Parse configuration sections
-    ai_providers, mcp_servers, web_interface, logging_config, history_config = (
-        _parse_config_sections(merged_config)
-    )
+    (
+        ai_providers,
+        mcp_servers,
+        web_interface,
+        logging_config,
+        history_config,
+    ) = _parse_config_sections(merged_config)
 
     return Config(
         ai_providers=ai_providers,

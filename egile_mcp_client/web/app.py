@@ -2,14 +2,14 @@
 
 import json
 import logging
-from typing import Dict, List, Optional, Any
 from contextlib import asynccontextmanager
+from typing import Any, Dict, List, Optional
 
 try:
     from fastapi import FastAPI, HTTPException, Request
+    from fastapi.responses import HTMLResponse
     from fastapi.staticfiles import StaticFiles
     from fastapi.templating import Jinja2Templates
-    from fastapi.responses import HTMLResponse
     from pydantic import BaseModel
 except ImportError:
     FastAPI = None
@@ -20,14 +20,13 @@ except ImportError:
     HTMLResponse = None
     BaseModel = None
 
-from ..config import Config
-from ..mcp.client import MCPClient
+from ..agents.anthropic_agent import AnthropicAgent
 from ..agents.base import AIAgent, Message
 from ..agents.openai_agent import OpenAIAgent
-from ..agents.anthropic_agent import AnthropicAgent
+from ..config import Config
+from ..mcp.client import MCPClient
 from ..utils.history import HistoryManager
 from .routes import create_api_routes
-
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +111,8 @@ def create_app(config: Config) -> FastAPI:
                 },
             )
         else:
-            return HTMLResponse("""
+            return HTMLResponse(
+                """
             <!DOCTYPE html>
             <html>
             <head>
@@ -261,7 +261,8 @@ def create_app(config: Config) -> FastAPI:
                 </script>
             </body>
             </html>
-            """)
+            """
+            )
 
     return app
 
@@ -269,12 +270,14 @@ def create_app(config: Config) -> FastAPI:
 def main():
     """Main entry point for the web application."""
     import uvicorn
+
     from ..config import load_config
 
     # Explicitly load .env file before loading config
     try:
-        from dotenv import load_dotenv
         from pathlib import Path
+
+        from dotenv import load_dotenv
 
         env_path = Path.cwd() / ".env"
         if env_path.exists():

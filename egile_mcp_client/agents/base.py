@@ -1,8 +1,8 @@
 """Base agent interface for AI providers."""
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, AsyncGenerator
 from dataclasses import dataclass
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 
 @dataclass

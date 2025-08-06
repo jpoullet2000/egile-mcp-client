@@ -1,7 +1,8 @@
 """Test suite for the MCP client functionality."""
 
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from egile_mcp_client.config import Config, MCPServerConfig
 from egile_mcp_client.mcp.client import MCPClient
