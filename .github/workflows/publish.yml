@@ -121,7 +121,9 @@ jobs:
 
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      # Use trusted publishing instead of API token for better security
+      with:
+        # Fallback to API token if trusted publishing is not configured
+        password: ${{ secrets.PYPI_API_TOKEN }}
 
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
@@ -162,4 +164,6 @@ jobs:
 
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      # Use trusted publishing for manual releases too
+      with:
+        # Use API token for manual releases
+        password: ${{ secrets.PYPI_API_TOKEN }}
