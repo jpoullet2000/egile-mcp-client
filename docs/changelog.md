@@ -8,26 +8,79 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Comprehensive ReadTheDocs documentation
+- **Core Features**
+  - Direct mode for MCP server interaction
+  - Agent mode with AI-enhanced conversations
+  - Web interface for browser-based interactions
+  - Command-line interface with comprehensive commands
+  
+- **AI Provider Support**
+  - OpenAI integration (GPT-3.5, GPT-4, GPT-4 Turbo)
+  - Anthropic integration (Claude-3 Opus, Sonnet, Haiku)
+  - xAI integration (Grok models)
+  - Extensible agent architecture for custom providers
+  
+- **Connection Types**
+  - HTTP connections for REST-like MCP servers
+  - WebSocket connections for real-time communication
+  - Stdio connections for local process communication
+  - Automatic connection management and pooling
+  
+- **Configuration System**
+  - YAML-based configuration files
+  - Environment variable support
+  - Hot configuration reloading
+  - Comprehensive validation
+  
+- **Web Interface Features**
+  - Real-time chat interface
+  - Server and tool management
+  - Conversation history
+  - Configuration editor
+  - WebSocket-based real-time updates
+  
+- **CLI Commands**
+  - `agent` - Interactive chat mode
+  - `direct` - Direct server interaction
+  - `tools` - Tool management and testing
+  - `web` - Web interface launcher
+  - `config` - Configuration management
+  
+- **Developer Features**
+  - Comprehensive Python SDK
+  - Async/await support throughout
+  - Type hints for all APIs
+  - Context manager support
+  - Streaming response capabilities
+  
+- **Utilities**
+  - Conversation history management
+  - Enhanced logging system
+  - Performance monitoring
+  - Security features (rate limiting, input validation)
+  - Retry mechanisms with exponential backoff
+
+### Security
+- API key management and protection
+- Input validation and sanitization
+- SSL/TLS support for secure connections
+- Rate limiting to prevent abuse
+
+## Future Releases
+
+### Planned for 0.2.0
 - Advanced configuration validation
 - Performance monitoring capabilities
 - Batch processing support for agent mode
 - Custom middleware support
 - Connection pooling optimization
 
-### Changed
-- Improved error handling and recovery mechanisms
+### Planned for 0.3.0
 - Enhanced WebSocket connection stability
 - Better async performance optimization
-- Updated dependencies to latest versions
-
-### Fixed
-- WebSocket connection timeout issues
-- Configuration file validation edge cases
-- Memory leak in connection pooling
-- Race conditions in async operations
-
-## [0.1.0] - 2024-01-XX
+- WebSocket connection timeout improvements
+- Configuration file validation enhancements
+- Memory optimization in connection pooling
 
 ### Added
 - **Core Features**
@@ -136,6 +189,7 @@ When version 1.0.0 is released, this section will include:
 - [x] CLI foundation
 - [x] Configuration system
 - [x] Documentation
+- [x] Initial release preparation
 
 ### Version 0.2.0 Goals 🚧
 - [ ] Advanced agent capabilities
