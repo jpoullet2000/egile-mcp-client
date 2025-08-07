@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*.*.*'
 
+# Add permissions for creating releases
+permissions:
+  contents: write  # Required to create releases
+  packages: write  # Required if pushing to GitHub Packages (Docker)
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -64,10 +69,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Publish to PyPI
-      run: poetry publish
-      env:
-        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+    # Note: PyPI publishing is handled by the dedicated publish.yml workflow
+    # which triggers on release creation. Commenting out to avoid conflicts.
+    # 
+    # - name: Publish to PyPI
+    #   run: poetry publish
+    #   env:
+    #     POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
 
   build-docker:
     needs: test
