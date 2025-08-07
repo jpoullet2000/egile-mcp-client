@@ -114,9 +114,6 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/egile-mcp-client
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
     
@@ -136,9 +133,6 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'testpypi'
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/egile-mcp-client
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
