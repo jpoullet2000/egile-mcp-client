@@ -2,47 +2,96 @@
 
 This guide explains how to set up and use the GitHub Actions workflow for publishing `egile-mcp-client` to PyPI.
 
+## ⚠️ **IMPORTANT: Version Sync Issue Fixed**
+
+I found and fixed a critical issue:
+- `pyproject.toml` had version "0.1.2" 
+- `__init__.py` had version "0.1.0"
+
+**Fixed**: Both now show version "0.1.2". Always keep these in sync!
+
+## 🔧 **Pipeline Improvements Made**
+
+### 1. **Added Concurrency Control**
+```yaml
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+```
+
+### 2. **Enhanced Version Validation**
+- Checks if version already exists on PyPI before release
+- Prevents accidental republishing of same version
+
+### 3. **Better Test Strategy**
+- Runs only core tests (not web tests that need optional dependencies)
+- Validates package can be installed and imported
+- Tests CLI availability
+
+### 4. **Comprehensive Package Validation**
+- `twine check` for package metadata validation
+- Install test to verify package works
+- CLI functionality test
+
+### 5. **Trusted Publishing Support**
+- Uses GitHub's OIDC for secure publishing (no API tokens needed for main PyPI)
+- More secure than API tokens
+
 ## Prerequisites
 
-### 1. PyPI Account Setup
-1. Create accounts on both [PyPI](https://pypi.org/) and [TestPyPI](https://test.pypi.org/)
-2. Enable two-factor authentication (2FA) on both accounts
-3. Generate API tokens for both accounts
+### 1. **Set up Trusted Publishing (Recommended)**
 
-### 2. Generate API Tokens
+For the main PyPI releases, set up trusted publishing:
 
-#### For PyPI:
-1. Go to [PyPI Account Settings](https://pypi.org/manage/account/)
-2. Scroll to "API tokens" section
-3. Click "Add API token"
-4. Set scope to "Entire account" (or specific to your project once it exists)
-5. Copy the token (starts with `pypi-`)
+1. Go to [PyPI](https://pypi.org/manage/account/publishing/)
+2. Add a new trusted publisher:
+   - **PyPI project name**: `egile-mcp-client`
+   - **Owner**: `jpoullet2000`
+   - **Repository name**: `egile-mcp-client`
+   - **Workflow filename**: `publish.yml`
+   - **Environment name**: `pypi` (optional)
 
-#### For TestPyPI:
+### 2. **TestPyPI Setup (for testing)**
+
+For TestPyPI, you still need an API token:
 1. Go to [TestPyPI Account Settings](https://test.pypi.org/manage/account/)
-2. Follow the same steps as above
-3. Copy the token (starts with `pypi-`)
+2. Generate an API token
+3. Add it as `TEST_PYPI_API_TOKEN` in GitHub Secrets
 
-### 3. Configure GitHub Secrets
+### 3. **Version Management Strategy**
 
-In your GitHub repository:
-1. Go to Settings → Secrets and variables → Actions
-2. Add the following repository secrets:
-   - `PYPI_API_TOKEN`: Your PyPI API token
-   - `TEST_PYPI_API_TOKEN`: Your TestPyPI API token
+Always update both files when changing version:
 
-### 4. Create GitHub Environments (Recommended)
+```bash
+# Update version in pyproject.toml
+poetry version patch  # or minor/major
 
-For additional security, create environments:
-1. Go to Settings → Environments
-2. Create two environments:
-   - `pypi` - for production releases
-   - `testpypi` - for testing
+# Update version in __init__.py to match
+# Edit egile_mcp_client/__init__.py manually
+```
 
-You can add protection rules like:
-- Required reviewers
-- Deployment branches (only `main` branch)
-- Environment secrets (store tokens here instead of repository secrets)
+**Or use this helper script:**
+
+```bash
+# Create a simple version sync script
+cat > update_version.sh << 'EOF'
+#!/bin/bash
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <version>"
+    exit 1
+fi
+
+VERSION=$1
+poetry version $VERSION
+NEW_VERSION=$(poetry version -s)
+sed -i "s/__version__ = \".*\"/__version__ = \"$NEW_VERSION\"/" egile_mcp_client/__init__.py
+echo "Updated version to $NEW_VERSION in both files"
+EOF
+chmod +x update_version.sh
+
+# Usage:
+# ./update_version.sh 0.1.3
+```
 
 ## Usage
 
