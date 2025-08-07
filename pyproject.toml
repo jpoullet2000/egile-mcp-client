@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "egile-mcp-client"
-version = "0.1.2"
+version = "0.1.3"
 description = "A comprehensive MCP client with direct connection and AI agent modes, including web interface"
 authors = [{name = "Jean-Baptiste Poullet", email = "egile@gmail.com"}]
 readme = "README.md"
