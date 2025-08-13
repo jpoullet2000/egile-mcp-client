@@ -171,3 +171,6 @@ BUILD_SUMMARY.md
 *_SUMMARY.md
 
 *.code-workspace
+
+# temporary
+tmp/
