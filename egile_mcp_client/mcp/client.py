@@ -10,7 +10,7 @@ from .connection import (
     StdioMCPConnection,
     WebSocketMCPConnection,
 )
-from .protocol import MCPProtocol, PromptInfo, ResourceInfo, ToolInfo
+from .protocol import MCPProtocol, MCPMethod, PromptInfo, ResourceInfo, ToolInfo
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +137,7 @@ class MCPClient:
                 raise RuntimeError(f"Initialization failed: {response.error}")
 
             # Send initialized notification
-            initialized_notification = self.protocol.create_notification("initialized")
+            initialized_notification = self.protocol.create_notification(MCPMethod.INITIALIZED.value)
             await connection.send_notification(initialized_notification)
 
             self.initialized_servers.add(server_name)

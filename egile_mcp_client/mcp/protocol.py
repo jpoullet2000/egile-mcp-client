@@ -19,7 +19,7 @@ class MCPMethod(Enum):
 
     # Initialization
     INITIALIZE = "initialize"
-    INITIALIZED = "initialized"
+    INITIALIZED = "notifications/initialized"
 
     # Tools
     LIST_TOOLS = "tools/list"
@@ -150,7 +150,10 @@ class MCPProtocol:
         self, message: Union[MCPRequest, MCPResponse, MCPNotification]
     ) -> str:
         """Serialize an MCP message to JSON."""
-        return json.dumps(asdict(message))
+        # Convert to dict and remove None values
+        data = asdict(message)
+        # Remove None values to match MCP specification
+        return json.dumps({k: v for k, v in data.items() if v is not None})
 
     def parse_message(
         self, data: str
