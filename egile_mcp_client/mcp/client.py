@@ -137,7 +137,9 @@ class MCPClient:
                 raise RuntimeError(f"Initialization failed: {response.error}")
 
             # Send initialized notification
-            initialized_notification = self.protocol.create_notification(MCPMethod.INITIALIZED.value)
+            initialized_notification = self.protocol.create_notification(
+                MCPMethod.INITIALIZED.value
+            )
             await connection.send_notification(initialized_notification)
 
             self.initialized_servers.add(server_name)
